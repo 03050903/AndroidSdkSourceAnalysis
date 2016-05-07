@@ -189,7 +189,7 @@ public TabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
 这些代码都很简单，不过我们可以从中学习到很多有用的思想。学习Google程序员是如何使用对象池来减少对象创建，优化内存占用的。
 
 至此，一个清晰的图层级图应该就出现在了各位同学的眼前。
-![TabLayout Hierarchy](https://github.com/Aspsine/AndroidSdkSourceAnalysis/blob/master/img/hierarchy.png);
+![TabLayout Hierarchy](https://github.com/Aspsine/AndroidSdkSourceAnalysis/blob/master/img/hierarchy.png)
 
 
 #### 3.2.2 与ViewPager是如何使用的
