@@ -493,8 +493,22 @@ private int calculateScrollXForTab(int position, float positionOffset) {
 ```
 至此，我们就明白了TabLayout是如何随ViewPager的滚动而滚动的。
 
+### 3.2.4 Tab选中状态
+```java
+private void setSelectedTabView(int position) {
+    final int tabCount = mTabStrip.getChildCount();
+    if (position < tabCount && !mTabStrip.getChildAt(position).isSelected()) {
+        for (int i = 0; i < tabCount; i++) {
+            final View child = mTabStrip.getChildAt(i);
+            child.setSelected(i == position);
+        }
+    }
+}
+```
+调用View的`setSelected(boolean)`方法。
+
 ## 4. 开源项目中的使用
-开源项目中使用TabLayout的例子特别多。
+开源项目中使用TabLayout的例子特别多, 这里给出我写的一个项目：
 - [SwipeToLoadLayout](https://github.com/Aspsine/SwipeToLoadLayout)的demo
 
 
