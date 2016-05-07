@@ -20,14 +20,14 @@ tabLayout.addTab(tabLayout.newTab().setText("Tab 3"));
 也可以在xml中添加tabs
 ```xml
 <android.support.design.widget.TabLayout
-	android:layout_height="wrap_content"
-	android:layout_width="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
 
-	<android.support.design.widget.TabItem
-		android:text="@string/tab_text"/>
+    <android.support.design.widget.TabItem
+        android:text="@string/tab_text"/>
 
-	<android.support.design.widget.TabItem
-		android:icon="@drawable/ic_android"/>
+    <android.support.design.widget.TabItem
+        android:icon="@drawable/ic_android"/>
 
 </android.support.design.widget.TabLayout>
 ```
@@ -38,12 +38,12 @@ TabLayout tabLayout = ...;
 ViewPager viewPager = ...;
 
 PagerAdapter adapter = new PagerAdapter(){
-	// ...Override some methods
-	// TabLayout调用这个方法获取Tab的title
-	@Override
-	public CharSequence getPageTitle(int position) {
-		return "Tab 1";
-	}
+    // ...Override some methods
+    // TabLayout调用这个方法获取Tab的title
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return "Tab 1";
+    }
 }
 viewPager.setAdapter(adapter);
 tabLayout.setupWithViewPager(viewPager);
@@ -77,14 +77,14 @@ TabLayout继承`HorizontalScrollView`天生就是一个可以横向滚动的View
 TabLayout可以在layout中添加多个子View节点. 前面介绍`TabLayout`继承于｀HorizontalScrollView｀最多只能有1个子View. TabLayout是如何解决这个矛盾的呢？
 ```xml
 <android.support.design.widget.TabLayout
-	android:layout_height="wrap_content"
-	android:layout_width="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
 
-	<android.support.design.widget.TabItem
-		android:text="@string/tab_text"/>
+    <android.support.design.widget.TabItem
+        android:text="@string/tab_text"/>
 
-	<android.support.design.widget.TabItem
-		android:icon="@drawable/ic_android"/>
+    <android.support.design.widget.TabItem
+        android:icon="@drawable/ic_android"/>
 
 </android.support.design.widget.TabLayout>
 ```
@@ -100,7 +100,7 @@ private void addViewInternal(final View child) {
 }
 ```
 可见，若view非`TabItem`对象，会抛出异常。所以在xml中在TabLayout中添加tab，只能添加`TabItem`对象。若想添加其它View类型怎么办？TabItem有`android:customView`这个属性。我们继续来看。
-```
+```java
 private void addTabFromItemView(@NonNull TabItem item) {
     final Tab tab = newTab();
     if (item.mText != null) {
@@ -175,14 +175,14 @@ private void configureTab(Tab tab, int position) {
 ```java
 public TabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-	// 禁用横向滑动条
-	setHorizontalScrollBarEnabled(false);
+    // 禁用横向滑动条
+    setHorizontalScrollBarEnabled(false);
 
-	// new 一个SlidingTabStrip的实例，并作为唯一的子View add进TabLayout.
-	mTabStrip = new SlidingTabStrip(context);
-	super.addView(mTabStrip, 0, new HorizontalScrollView.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+    // new 一个SlidingTabStrip的实例，并作为唯一的子View add进TabLayout.
+    mTabStrip = new SlidingTabStrip(context);
+    super.addView(mTabStrip, 0, new HorizontalScrollView.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
 
-	// 省略下面的无关代码...
+    // 省略下面的无关代码...
 ｝
 ```
 至此，我们就明白了TabLayout中子View的一致性是如何保证的。也明白了`TabView`其实才是亲生的，`TabItem`其实是后娘养的！
@@ -235,7 +235,7 @@ private void setPagerAdapter(@Nullable final PagerAdapter adapter, final boolean
     populateFromPagerAdapter();
 }
 ```
-设置mPageChangeListener以及ViewPagerOnTabSelectedListener对象，保证ViewPager的页面和TabLayout的item的选中状态保持一致，以及滚动的协同性。这里的监听在3.2.3与3.2.4中详细讲解。
+设置mPageChangeListener以及ViewPagerOnTabSelectedListener对象，保证ViewPager的页面和TabLayout的item的选中状态保持一致，以及滚动的协同性。这里的监听在3.2.3中详细讲解。
 
 我们一般调用`viewPager.getAdapter().notifyDataSetChanged();`来进行ViewPager的刷新.现在，我们在ViewPager的adapter中添加一个监听器，让其刷新的时候也可以刷新TabLayout.我们来看看
 `PagerAdapterObserver`这个监听器是如何刷新TabLayout的。
@@ -275,7 +275,7 @@ private void populateFromPagerAdapter() {
 ```
 刷新方式很简单粗暴，移除所有的tab，然后从adapter中获取tab信息，重新添加。并在viewpager中获取当前页，做tab的选中。
 
-#### 3.2.3 ViewPager与TabLayout的indicator协同滚动
+#### 3.2.3 ViewPager与TabLayout的Tab及indicaotr协同滚动
 ```java
 public static class TabLayoutOnPageChangeListener implements ViewPager.OnPageChangeListener {
     private final WeakReference<TabLayout> mTabLayoutRef;
@@ -357,6 +357,7 @@ private void setScrollPosition(int position, float positionOffset, boolean updat
     }
 }
 ```
+##### 3.2.3.1 TabLayout的Indicator协同滚动
 indicator的滚动由SlidingTabStrip来处理：
 ``
 ```java
@@ -381,7 +382,7 @@ void setIndicatorPositionFromTabPosition(int position, float positionOffset) {
 }
 ```
 SlidingTabStrip#updateIndicatorPosition()
-```
+```java
 private void updateIndicatorPosition() {
     final View selectedTitle = getChildAt(mSelectedPosition);
     int left, right;
@@ -421,9 +422,6 @@ private void setIndicatorPosition(int left, int right) {
 非常简单的代码，在调用`ViewCompat.postInvalidateOnAnimation(this)`重绘View之前，去掉一些重复帧。
 
 
-
-
-#### 3.2.4 ViewPager与TabLayout的Tab协同滚动
 ```java
 @Override
 public void draw(Canvas canvas) {
@@ -436,8 +434,67 @@ public void draw(Canvas canvas) {
     }
 }
 ```
+调用`canvas.drawRect(float left, float top, float right, float bottom, Paint paint)`来绘制indicator.这里：
+```java
+left = mIndicatorLeft;
+top = getHeight() - mSelectedIndicatorHeight;
+right = mIndicatorRight;
+bottom = getHeight();
+```
 
+##### 3.2.3.2 TabLayout的TabView协同滚动
+我们回头来看 3.2.3中`setScrollPosition(...)`方法
+```java
+private void setScrollPosition(int position, float positionOffset, boolean updateSelectedText, boolean updateIndicatorPosition) {
+    final int roundedPosition = Math.round(position + positionOffset);
+    if (roundedPosition < 0 || roundedPosition >= mTabStrip.getChildCount()) {
+        return;
+    }
 
+    // Set the indicator position, if enabled
+    if (updateIndicatorPosition) {
+        mTabStrip.setIndicatorPositionFromTabPosition(position, positionOffset);
+    }
 
+    // Now update the scroll position, canceling any running animation
+    if (mScrollAnimator != null && mScrollAnimator.isRunning()) {
+        mScrollAnimator.cancel();
+    }
+    scrollTo(calculateScrollXForTab(position, positionOffset), 0);
+
+    // Update the 'selected state' view as we scroll, if enabled
+    if (updateSelectedText) {
+        setSelectedTabView(roundedPosition);
+    }
+}
+```
+在3.2.3.1中我们知道indicator的滚动是通过`mTabStrip.setIndicatorPositionFromTabPosition(position, positionOffset)`实现的。那TabView的滚动呢？我们知道`TabLayout`是继承`HorizonScrollView`天生就是一个可以横行滚动的View，所以，我们只需要调用`scrollTo(int x, int y)`方法就可以实现横向滚动。
+```java
+scrollTo(calculateScrollXForTab(position, positionOffset), 0);
+```
+这里x方向的偏移量调用`calculateScrollXForTab(position, positionOffset)`实时计算得出，y方向的偏移量为0。
+```java
+private int calculateScrollXForTab(int position, float positionOffset) {
+    if (mMode == MODE_SCROLLABLE) {
+        final View selectedChild = mTabStrip.getChildAt(position);
+        final View nextChild = position + 1 < mTabStrip.getChildCount()
+                ? mTabStrip.getChildAt(position + 1)
+                : null;
+        final int selectedWidth = selectedChild != null ? selectedChild.getWidth() : 0;
+        final int nextWidth = nextChild != null ? nextChild.getWidth() : 0;
+
+        return selectedChild.getLeft()
+                + ((int) ((selectedWidth + nextWidth) * positionOffset * 0.5f))
+                + (selectedChild.getWidth() / 2)
+                - (getWidth() / 2);
+    }
+    return 0;
+}
+```
+至此，我们就明白了TabLayout是如何随ViewPager的滚动而滚动的。
+
+## 4. 开源项目中的使用
+开源项目中使用TabLayout的例子特别多。
+- [SwipeToLoadLayout](https://github.com/Aspsine/SwipeToLoadLayout)的demo
 
 
