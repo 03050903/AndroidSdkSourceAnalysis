@@ -1,23 +1,23 @@
 # TabLayout 源码解析
 ## 1. 功能介绍 
 ### 1.1 TabLayout
-`Tabs`跟随Actionbar在Android 3.0进入大家的视线，是一个很经典的设计。它也是Material Design 规范中提及的`Component`之一。`Tabs` or `Bottom navigation`？相信不少Android开发者与产品都撕过，就连微信在其中也有过抉择。Google在`Google+`以及`Google Photo`相继采用`Bottom navigation`的设计把剧情推到向高潮，一度轰动整个社区。Google继而在Material Design 规范加入了`Bottom navigation`，表明了态度，也给这起争论画上了圆满的句号。
+Tabs跟随Actionbar在Android 3.0进入大家的视线，是一个很经典的设计。它也是Material Design 规范中提及的`Component`之一。Tabs or Bottom navigation？相信不少Android开发者与产品都撕过，就连微信在其中也有过抉择。Google在Google+以及Google Photo中相继采用Bottom navigation的设计把剧情推到向高潮，一度轰动整个社区。Google继而在Material Design 规范加入了Bottom navigation，表明了态度，也给这起争论画上了圆满的句号。
 
-在`support desgin lib`发布前，大家基本都采用[PagerSlidingTabStrip](https://github.com/astuetz/PagerSlidingTabStrip)来实现tab效果。其实`TabLayout`在实现上和`PagerSlidingTabStrip`十分相似，今天我们来分析`TabLayout`。
+在 support desgin lib 发布前，大家基本都采用[PagerSlidingTabStrip](https://github.com/astuetz/PagerSlidingTabStrip)来实现tab效果。其实`TabLayout`在实现上和`PagerSlidingTabStrip`十分相似，今天我们来分析`TabLayout`。
 
 
 ### 1.2 TabLayout使用
 
-TabLayout使用比较简单。既可以单独使用，也可以与ViewPager配合使用。
+`TabLayout`使用比较简单。既可以单独使用，也可以与`ViewPager`配合使用。
 #### 1.2.1 TabLayout单独使用
-在java代码中添加tabs
+在java代码中添加Tabs
 ```java
 TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
 tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
 tabLayout.addTab(tabLayout.newTab().setText("Tab 2"));
 tabLayout.addTab(tabLayout.newTab().setText("Tab 3"));
 ```
-也可以在xml中添加tabs
+也可以在xml中添加Tabs
 ```xml
 <android.support.design.widget.TabLayout
     android:layout_height="wrap_content"
@@ -34,6 +34,7 @@ tabLayout.addTab(tabLayout.newTab().setText("Tab 3"));
 
 #### 1.2.2 与ViewPager搭配使用
 ```java
+// find view
 TabLayout tabLayout = ...;
 ViewPager viewPager = ...;
 
@@ -51,21 +52,21 @@ tabLayout.setupWithViewPager(viewPager);
 
 ## 2. 总体设计
 
-TabLayout继承`HorizontalScrollView`天生就是一个可以横向滚动的ViewGroup. 我们知道，`HorizontalScrollView`与`ScrollView`一样，最多只能包含一个子View. 
+- `TabLayout`继承`HorizontalScrollView`天生就是一个可以横向滚动的`ViewGroup`. 我们知道, `HorizontalScrollView`与`ScrollView`一样, 最多只能包含一个子View. 
 
-`SlidingTabStrip`继承于`LinearLayout`，是`TabLayout`的内部类。它是TabLayout唯一的子View. 所有的`TabView`都是它的子view.
+- `SlidingTabStrip`继承于`LinearLayout`，是`TabLayout`的内部类。它是`TabLayout`唯一的子View. 所有的`TabView`都是它的子View.
 
-`TabView`继承于`LinearLayout`,以`Tab`为数据源，来展示Tab的样式。最终用for循环被add进`SlidingTabStrip`.
+- `TabView`继承于`LinearLayout`,以`Tab`为数据源，来展示Tab的样式。最终用for循环被add进`SlidingTabStrip`.
 
-`Tab`是一个简单的View Model实体类，控制`TabView`的title, icon, custom layout id等属性。
+- `Tab`是一个简单的View Model实体类，控制`TabView`的title, icon, custom layout id等属性。
 
-`TabItem`继承于View. 用于在layout xml中来描述Tab. 需要注意的是，它不会add到`SlidingTabStrip`中去。它的作用是从xml中获取到text，icon，custom layout id等属性。TabLayout inflate到`TabItem`并获取属性到装配到`Tab`中，最终add到`SlidingTabStrip`中的还是`TabView`.
+- `TabItem`继承于View. 用于在layout xml中来描述Tab. 需要注意的是，它不会add到`SlidingTabStrip`中去。它的作用是从xml中获取到text，icon，custom layout id等属性。TabLayout inflate到`TabItem`并获取属性到装配到`Tab`中，最终add到`SlidingTabStrip`中的还是`TabView`.
 
-`OnTabSelectedListener`是TabLayout中的内部接口，用于监听`SlidingTabStrip`中子`TabView`选中状态的改变。
+- `OnTabSelectedListener`是TabLayout中的内部接口，用于监听`SlidingTabStrip`中子`TabView`选中状态的改变。
 
-`Mode`是TabLayout滚动模式的描述，一共有两种状态。`MODE_FIXED`不可滚动模式，以及`MODE_SCROLLABLE`可以滚动模式。
+- `Mode`是TabLayout滚动模式的描述，一共有两种状态。`MODE_FIXED`不可滚动模式，以及`MODE_SCROLLABLE`可以滚动模式。
 
-`Gravity`是`TabView`在`SlidingTabStrip`中layout方式的描述。分为：GRAVITY_FILL，GRAVITY_CENTER.
+- `Gravity`是`TabView`在`SlidingTabStrip`中layout方式的描述。分为：GRAVITY_FILL，GRAVITY_CENTER.
 
 ## 3. 详细设计
 ### 3.1 类关系图
@@ -74,7 +75,7 @@ TabLayout继承`HorizontalScrollView`天生就是一个可以横向滚动的View
 ### 3.2 分析
 
 #### 3.2.1 TabLayout子View唯一性保证
-TabLayout可以在layout中添加多个子View节点. 前面介绍`TabLayout`继承于`HorizontalScrollView`最多只能有1个子View. TabLayout是如何解决这个矛盾的呢？
+前面介绍`TabLayout`继承于`HorizontalScrollView`最多只能有1个子View. 但`TabLayout`可以在layout中添加多个子View节点. 这是怎么回事呢？
 ```xml
 <android.support.design.widget.TabLayout
     android:layout_height="wrap_content"
@@ -88,7 +89,7 @@ TabLayout可以在layout中添加多个子View节点. 前面介绍`TabLayout`继
 
 </android.support.design.widget.TabLayout>
 ```
-看过`LayoutInflater`源码的同学可能会知道，这个过程是，先inflate到生成View对象，再调用`ViewGroup#addView(...)`系列方法把view添加到ViewGroup中。我们发现TabLayout的`addView(...)`系列方法，都调用了共同的一个方法，`addViewInternal(View view)`。
+看过`LayoutInflater`源码的同学可能会知道这个过程：先inflate到生成View对象，再调用`ViewGroup#addView(...)`系列方法把view添加到ViewGroup中。我们发现TabLayout的`addView(...)`系列方法，都删去super调用，且调用了共同的一个方法，`addViewInternal(View view)`。
 
 ```xml
 private void addViewInternal(final View child) {
@@ -99,7 +100,7 @@ private void addViewInternal(final View child) {
     }
 }
 ```
-可见，若view非`TabItem`对象，会抛出异常。所以在xml中在TabLayout中添加tab，只能添加`TabItem`对象。若想添加其它View类型怎么办？TabItem有`android:customView`这个属性。我们继续来看。
+可见，若child非`TabItem`对象会抛出异常。所以xml中给TabLayout添加tab时，只能添加`TabItem`对象。若想添加其它View类型怎么办？TabItem有`android:customView`这个属性。我们继续来看。
 ```java
 private void addTabFromItemView(@NonNull TabItem item) {
     final Tab tab = newTab();
@@ -138,7 +139,7 @@ private TabView createTabView(@NonNull final Tab tab) {
 
 ```
 
-这里创建了一个tab对象，用了一个对象池把创建的tab对象缓存起来。并将`TabItem`对象的属性都赋值给tab对象。addTab有三个重载方法，最终都会调用
+这里调`newTab()`方法创建了一个tab对象，并且用对象池把创建的tab对象缓存起来。然后将`TabItem`对象的属性都赋值给tab对象。在`createTabView(Tab tab)`这个方法中，首先从`TabView`池中获取`TabView`对象，如果不存在，则实例化一个对象，并调用`tabView.setTab(tab)`方法来进行了数据绑定。 `addTab(...)`有三个重载方法，最终都会调用如下方法：
 ```java
 public void addTab(@NonNull Tab tab, boolean setSelected) {
     if (tab.mParent != this) {
@@ -170,34 +171,32 @@ private void configureTab(Tab tab, int position) {
     }
 }
 ```
-在addTabView这个方法中，我们可以看到，实际上从layout xml中inflate出来的TabItem对象只是提供属性给TabView, 然后把tabView对象add进了`SlidingTabStrip`对象。实际上`SlidingTabStrip`的对象mTabStrip才是TabLayout的唯一子View.
-在TabLayout的构造方法中
+在`addView(Tab, int, boolean)`方法中，把`TabView`对象add进了`SlidingTabStrip`这个`ViewGroup`中。实际上`SlidingTabStrip`的对象`mTabStrip`才是`TabLayout`的唯一子View.在`TabLayout`的构造方法中:
 ```java
 public TabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     // 禁用横向滑动条
     setHorizontalScrollBarEnabled(false);
 
-    // new 一个SlidingTabStrip的实例，并作为唯一的子View add进TabLayout.
+    // new 一个'SlidingTabStrip'的实例，并作为唯一的子View add进'TabLayout'.
     mTabStrip = new SlidingTabStrip(context);
     super.addView(mTabStrip, 0, new HorizontalScrollView.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
 
     // 省略下面的无关代码...
 ｝
 ```
-至此，我们就明白了TabLayout中子View的一致性是如何保证的。也明白了`TabView`其实才是亲生的，`TabItem`其实是后娘养的！
-这些代码都很简单，不过我们可以从中学习到很多有用的思想。学习Google程序员是如何使用对象池来减少对象创建，优化内存占用的。
+至此，我们就明白了`TabLayout`中子View的一致性是如何保证的。也明白了`TabView`其实才是亲生的，`TabItem`其实是后娘养的! 这些代码都很简单，不过我们可以从中学习到很多有用的思想。
 
-至此，一个清晰的图层级图应该就出现在了各位同学的眼前。
+至此，一个清晰的`View`层级图应该就出现在了各位同学的眼前。
 ![TabLayout Hierarchy](https://github.com/Aspsine/AndroidSdkSourceAnalysis/blob/master/img/hierarchy.png)
 
 
-#### 3.2.2 与ViewPager是如何使用的
+#### 3.2.2 与ViewPager搭配使用
 有了上面的的基础，我们再来看看`TabLayout`是如何和它的好基友`ViewPager`搭配使用的。
 ```java
 public void setupWithViewPager(@Nullable final ViewPager viewPager) {
     //...
-    //为理解简单起见，删掉带干扰性的判断性边角代码，主要来看核心逻辑
+    //为理解简单起见，删掉边角性干扰代码，主要来看核心逻辑
 
     mViewPager = viewPager;
 
@@ -213,6 +212,10 @@ public void setupWithViewPager(@Nullable final ViewPager viewPager) {
 
     // Now we'll populate ourselves from the pager adapter
     setPagerAdapter(adapter, true);
+}
+
+public void setOnTabSelectedListener(OnTabSelectedListener onTabSelectedListener) {
+    mOnTabSelectedListener = onTabSelectedListener;
 }
 
 private void setPagerAdapter(@Nullable final PagerAdapter adapter, final boolean addObserver) {
@@ -235,10 +238,9 @@ private void setPagerAdapter(@Nullable final PagerAdapter adapter, final boolean
     populateFromPagerAdapter();
 }
 ```
-设置mPageChangeListener以及ViewPagerOnTabSelectedListener对象，保证ViewPager的页面和TabLayout的item的选中状态保持一致，以及滚动的协同性。这里的监听在3.2.3中详细讲解。
+这里的`TabLayoutOnPageChangeListener`实现了`ViewPager.OnPageChangeListener`. 首先调用`ViewPager`对象`addOnPageChangeListener(OnPageChangeListener)`来监听`ViewPager`的滑动以及当前也的选中。然后设置`ViewPagerOnTabSelectedListener`对象，保证ViewPager的页面和TabLayout的item的选中状态保持一致，以及滚动的协同性。这里的监听在3.2.3中详细讲解。
 
-我们一般调用`viewPager.getAdapter().notifyDataSetChanged();`来进行ViewPager的刷新.现在，我们在ViewPager的adapter中添加一个监听器，让其刷新的时候也可以刷新TabLayout.我们来看看
-`PagerAdapterObserver`这个监听器是如何刷新TabLayout的。
+我们一般调用`viewPager.getAdapter().notifyDataSetChanged()`来进行ViewPager的刷新. 现在我们在ViewPager的adapter中注册一个监听器，监听`ViewPager`的刷新行为。目的是为了刷新`ViewPager`的同时也可以刷新TabLayout. 我们来看看`PagerAdapterObserver`这个监听器是如何刷新TabLayout的。
 ```java
 private class PagerAdapterObserver extends DataSetObserver {
     @Override
@@ -272,8 +274,24 @@ private void populateFromPagerAdapter() {
         removeAllTabs();
     }
 }
+
+public void removeAllTabs() {
+    // Remove all the views
+    for (int i = mTabStrip.getChildCount() - 1; i >= 0; i--) {
+        removeTabViewAt(i);
+    }
+
+    for (final Iterator<Tab> i = mTabs.iterator(); i.hasNext();) {
+        final Tab tab = i.next();
+        i.remove();
+        tab.reset();
+        sTabPool.release(tab);
+    }
+
+    mSelectedTab = null;
+}
 ```
-刷新方式很简单粗暴，移除所有的tab，然后从adapter中获取tab信息，重新添加。并在viewpager中获取当前页，做tab的选中。
+刷新方式很简单粗暴，从`SlidingTabStrip`对象中移除所有的`TabView`，继而从View Model`mTabs`中移除所有`Tab`对象。然后从adapter中获取tab信息，循环调用`addTab(Tab, boolean)`方法重新添加`TabView`。最后调用`ViewPager`对象的`getCurrentItem()`方法，获取当前位置，然后调用selectTab(int position)恢复`TabView`的选中状态（针对TabView的选中，3.2.4中有详细介绍)。
 
 #### 3.2.3 ViewPager与TabLayout的Tab及indicaotr协同滚动
 ```java
@@ -328,11 +346,11 @@ public static class TabLayoutOnPageChangeListener implements ViewPager.OnPageCha
 }
 
 ```
-用过ViewPager的同学对`OnPageChangeListener`不会陌生，不多赘述。`TabLayoutOnPageChangeListener`实现了`OnPageChangeListener`, 在`onPageScrolled(...)`方法中做协同滚动处理。滚动的条件是：
+用过`ViewPager`的同学对`OnPageChangeListener`不会陌生，不多赘述。`TabLayoutOnPageChangeListener`实现了`OnPageChangeListener`, 在`onPageScrolled(...)`方法中做协同滚动处理。滚动的条件是：
 ```java
 final boolean updateIndicator = !(mScrollState == SCROLL_STATE_SETTLING && mPreviousScrollState == SCROLL_STATE_IDLE);
 ```
-调用`TabLayout的setScrollPosition(...)`方法来滚动TabLayout中的tab，以及indicator。
+调用`TabLayout的setScrollPosition(...)`方法来控制`TabLayout`中`TabView`和indocator的协同滚动。
 ```java
 private void setScrollPosition(int position, float positionOffset, boolean updateSelectedText, boolean updateIndicatorPosition) {
     final int roundedPosition = Math.round(position + positionOffset);
@@ -366,8 +384,7 @@ if (updateIndicatorPosition) {
     mTabStrip.setIndicatorPositionFromTabPosition(position, positionOffset);
 }
 ```
-这里的`position`是当前选中的位置。
-`positionOffset是`: `距当前Tab滑动的距离／从当前tab滑动到下一个tab的总距离` 这样一个范围在［0，1］间的小数。
+这里的`position`是当前选中的位置。`positionOffset`是: `距当前Tab滑动的距离`／`从当前tab滑动到下一个tab的总距离` 这样一个范围在［0，1］间的小数。
 
 SlidingTabStrip#setIndicatorPositionFromTabPosition(int, float)
 ```java
@@ -419,7 +436,7 @@ private void setIndicatorPosition(int left, int right) {
     }
 }
 ```
-非常简单的代码，在调用`ViewCompat.postInvalidateOnAnimation(this)`重绘View之前，去掉一些重复帧。
+非常简单的代码，在调用`ViewCompat.postInvalidateOnAnimation(this)`重绘View之前，去掉一些重复绘制的帧。
 
 
 ```java
@@ -434,7 +451,7 @@ public void draw(Canvas canvas) {
     }
 }
 ```
-调用`canvas.drawRect(float left, float top, float right, float bottom, Paint paint)`来绘制indicator.这里：
+绘制逻辑很简单。调用`canvas.drawRect(float left, float top, float right, float bottom, Paint paint)`来绘制indicator.这里：
 ```java
 left = mIndicatorLeft;
 top = getHeight() - mSelectedIndicatorHeight;
@@ -468,7 +485,7 @@ private void setScrollPosition(int position, float positionOffset, boolean updat
     }
 }
 ```
-在3.2.3.1中我们知道indicator的滚动是通过`mTabStrip.setIndicatorPositionFromTabPosition(position, positionOffset)`实现的。那TabView的滚动呢？我们知道`TabLayout`是继承`HorizonScrollView`天生就是一个可以横行滚动的View，所以，我们只需要调用`scrollTo(int x, int y)`方法就可以实现横向滚动。
+在3.2.3.1中我们知道indicator的滚动是通过`mTabStrip.setIndicatorPositionFromTabPosition(position, positionOffset)`实现的。那TabView的滚动呢？我们知道`TabLayout`是继承`HorizonScrollView`天生就是一个可以横行滚动的`View`，所以，我们只需要调用`scrollTo(int x, int y)`方法就可以实现横向滚动。
 ```java
 scrollTo(calculateScrollXForTab(position, positionOffset), 0);
 ```
@@ -491,9 +508,10 @@ private int calculateScrollXForTab(int position, float positionOffset) {
     return 0;
 }
 ```
-至此，我们就明白了TabLayout是如何随ViewPager的滚动而滚动的。
+至此，我们就明白了`TabLayout`是如何随`ViewPager`的滚动而滚动的。
 
 ### 3.2.4 Tab选中状态
+
 ```java
 private void setSelectedTabView(int position) {
     final int tabCount = mTabStrip.getChildCount();
