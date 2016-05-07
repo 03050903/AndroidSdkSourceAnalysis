@@ -1,4 +1,4 @@
-# TabLayout 源码分析
+# TabLayout 源码解析
 ## 1. 功能介绍 
 ### 1.1 TabLayout
 `Tabs`跟随Actionbar在Android 3.0进入大家的视线，是一个很经典的设计。它也是Material Design 规范中提及的`Component`之一。`Tabs` or `Bottom navigation`？相信不少Android开发者与产品都撕过，就连微信在其中也有过抉择。Google在`Google+`以及`Google Photo`相继采用`Bottom navigation`的设计把剧情推到向高潮，一度轰动整个社区。Google继而在Material Design 规范加入了`Bottom navigation`，表明了态度，也给这起争论画上了圆满的句号。
@@ -51,15 +51,15 @@ tabLayout.setupWithViewPager(viewPager);
 
 ## 2. 总体设计
 
-TabLayout继承`HorizontalScrollView`天生就是一个可以横向滚动的ViewGroup. 我们知道，`HorizontalScrollView`与｀ScrollView`一样，最多只能包含一个子View. 
+TabLayout继承`HorizontalScrollView`天生就是一个可以横向滚动的ViewGroup. 我们知道，`HorizontalScrollView`与`ScrollView`一样，最多只能包含一个子View. 
 
 `SlidingTabStrip`继承于`LinearLayout`，是`TabLayout`的内部类。它是TabLayout唯一的子View. 所有的`TabView`都是它的子view.
 
-`TabView`继承于`LinearLayout`,以`Tab`为数据源，来展示Tab的样式。最终用for循环被add进'SlidingTabStrip'.
+`TabView`继承于`LinearLayout`,以`Tab`为数据源，来展示Tab的样式。最终用for循环被add进`SlidingTabStrip`.
 
 `Tab`是一个简单的View Model实体类，控制`TabView`的title, icon, custom layout id等属性。
 
-`TabItem`继承于View. 用于在layout xml中来描述Tab. 需要注意的是，它不会add到`SlidingTabStrip`中去。它的作用是从xml中获取到'text'，'icon'，'custom layout id'等属性。TabLayout inflate到`TabItem`并获取属性到装配到`Tab`中，最终add到`SlidingTabStrip`中的还是`TabView`.
+`TabItem`继承于View. 用于在layout xml中来描述Tab. 需要注意的是，它不会add到`SlidingTabStrip`中去。它的作用是从xml中获取到text，icon，custom layout id等属性。TabLayout inflate到`TabItem`并获取属性到装配到`Tab`中，最终add到`SlidingTabStrip`中的还是`TabView`.
 
 `OnTabSelectedListener`是TabLayout中的内部接口，用于监听`SlidingTabStrip`中子`TabView`选中状态的改变。
 
@@ -74,7 +74,7 @@ TabLayout继承`HorizontalScrollView`天生就是一个可以横向滚动的View
 ### 3.2 分析
 
 #### 3.2.1 TabLayout子View唯一性保证
-TabLayout可以在layout中添加多个子View节点. 前面介绍`TabLayout`继承于｀HorizontalScrollView｀最多只能有1个子View. TabLayout是如何解决这个矛盾的呢？
+TabLayout可以在layout中添加多个子View节点. 前面介绍`TabLayout`继承于`HorizontalScrollView`最多只能有1个子View. TabLayout是如何解决这个矛盾的呢？
 ```xml
 <android.support.design.widget.TabLayout
     android:layout_height="wrap_content"
