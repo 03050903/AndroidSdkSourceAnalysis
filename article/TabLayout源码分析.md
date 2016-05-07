@@ -57,7 +57,7 @@ TabLayout继承`HorizontalScrollView`天生就是一个可以横向滚动的View
 
 `TabView`继承于`LinearLayout`,以`Tab`为数据源，来展示Tab的样式。最终用for循环被add进'SlidingTabStrip'.
 
-`Tab`是一个简单的View Model实体类，控制`TabView`的‘title’,‘icon’,'custom layout id'等属性。
+`Tab`是一个简单的View Model实体类，控制`TabView`的title, icon, custom layout id等属性。
 
 `TabItem`继承于View. 用于在layout xml中来描述Tab. 需要注意的是，它不会add到`SlidingTabStrip`中去。它的作用是从xml中获取到'text'，'icon'，'custom layout id'等属性。TabLayout inflate到`TabItem`并获取属性到装配到`Tab`中，最终add到`SlidingTabStrip`中的还是`TabView`.
 
@@ -69,7 +69,7 @@ TabLayout继承`HorizontalScrollView`天生就是一个可以横向滚动的View
 
 ## 3. 详细设计
 ### 3.1 类关系图
-[TabLayout]()
+![TabLayout](https://github.com/Aspsine/AndroidSdkSourceAnalysis/blob/master/img/class-uml.png)
 
 ### 3.2 分析
 
@@ -99,7 +99,7 @@ private void addViewInternal(final View child) {
     }
 }
 ```
-可见，若view非`TabItem`对象，会抛出异常。所以在xml中在TabLayout中添加tab，只能添加`TabItem`对象。若想添加其它View类型怎么办？TabItem有‘android:customView’这个属性。我们继续来看。
+可见，若view非`TabItem`对象，会抛出异常。所以在xml中在TabLayout中添加tab，只能添加`TabItem`对象。若想添加其它View类型怎么办？TabItem有`android:customView`这个属性。我们继续来看。
 ```
 private void addTabFromItemView(@NonNull TabItem item) {
     final Tab tab = newTab();
@@ -189,7 +189,7 @@ public TabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
 这些代码都很简单，不过我们可以从中学习到很多有用的思想。学习Google程序员是如何使用对象池来减少对象创建，优化内存占用的。
 
 至此，一个清晰的图层级图应该就出现在了各位同学的眼前。
-[TabLayout Hierarchy]();
+![TabLayout Hierarchy](https://github.com/Aspsine/AndroidSdkSourceAnalysis/blob/master/img/hierarchy.png);
 
 
 #### 3.2.2 与ViewPager是如何使用的
